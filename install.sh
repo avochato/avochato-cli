@@ -40,10 +40,9 @@ curl -fsSL "$BASE/checksums.txt" -o "$TMP/checksums.txt"
 # Releases are signed with cosign (keyless, GitHub Actions OIDC); verify when cosign is installed.
 if command -v cosign >/dev/null 2>&1; then
   echo "Verifying signature..."
-  curl -fsSL "$BASE/checksums.txt.sig" -o "$TMP/checksums.txt.sig"
-  curl -fsSL "$BASE/checksums.txt.pem" -o "$TMP/checksums.txt.pem"
+  curl -fsSL "$BASE/checksums.txt.sigstore.json" -o "$TMP/checksums.txt.sigstore.json"
   cosign verify-blob --quiet "$TMP/checksums.txt" \
-    --signature "$TMP/checksums.txt.sig" --certificate "$TMP/checksums.txt.pem" \
+    --bundle "$TMP/checksums.txt.sigstore.json" \
     --certificate-identity-regexp "^https://github.com/$REPO/" \
     --certificate-oidc-issuer https://token.actions.githubusercontent.com
 else
