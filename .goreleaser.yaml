@@ -33,23 +33,23 @@ checksum:
   name_template: "checksums.txt"
 
 # Keyless cosign signature of checksums.txt; install.sh verifies it, which covers every archive.
+# cosign v3 writes a single sigstore bundle (signature + certificate) instead of separate files.
 signs:
   - cmd: cosign
-    certificate: "${artifact}.pem"
-    args: ["sign-blob", "--yes", "--output-certificate=${certificate}", "--output-signature=${signature}", "${artifact}"]
+    signature: "${artifact}.sigstore.json"
+    args: ["sign-blob", "--yes", "--bundle=${signature}", "${artifact}"]
     artifacts: checksum
 
-# Publishes Casks/avochato.rb to avochato/homebrew-tap; skipped until the HOMEBREW_TAP_TOKEN secret exists.
+# Publishes Casks/avochato.rb to avochato/homebrew-tap using the HOMEBREW_TAP_TOKEN repo secret.
 homebrew_casks:
   - name: avochato
     repository:
       owner: avochato
       name: homebrew-tap
-      token: '{{ envOrDefault "HOMEBREW_TAP_TOKEN" "" }}'
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     directory: Casks
     homepage: https://www.avochato.com/
     description: Official CLI for the Avochato messaging platform
-    skip_upload: '{{ if envOrDefault "HOMEBREW_TAP_TOKEN" "" }}false{{ else }}true{{ end }}'
     # The binary is not notarized, so clear the quarantine flag Gatekeeper would otherwise enforce.
     hooks:
       post:
