@@ -1,0 +1,67 @@
+version: 2
+
+project_name: avochato
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - main: ./main.go
+    binary: avochato
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  name_template: "checksums.txt"
+
+# Keyless cosign signature of checksums.txt; install.sh verifies it, which covers every archive.
+signs:
+  - cmd: cosign
+    certificate: "${artifact}.pem"
+    args: ["sign-blob", "--yes", "--output-certificate=${certificate}", "--output-signature=${signature}", "${artifact}"]
+    artifacts: checksum
+
+# Publishes Casks/avochato.rb to avochato/homebrew-tap; skipped until the HOMEBREW_TAP_TOKEN secret exists.
+homebrew_casks:
+  - name: avochato
+    repository:
+      owner: avochato
+      name: homebrew-tap
+      token: '{{ envOrDefault "HOMEBREW_TAP_TOKEN" "" }}'
+    directory: Casks
+    homepage: https://www.avochato.com/
+    description: Official CLI for the Avochato messaging platform
+    skip_upload: '{{ if envOrDefault "HOMEBREW_TAP_TOKEN" "" }}false{{ else }}true{{ end }}'
+    # The binary is not notarized, so clear the quarantine flag Gatekeeper would otherwise enforce.
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status.zero?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/avochato"]
+          end
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
