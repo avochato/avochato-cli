@@ -41,7 +41,7 @@ curl -fsSL "$BASE/checksums.txt" -o "$TMP/checksums.txt"
 if command -v cosign >/dev/null 2>&1; then
   echo "Verifying signature..."
   curl -fsSL "$BASE/checksums.txt.sigstore.json" -o "$TMP/checksums.txt.sigstore.json"
-  cosign verify-blob --quiet "$TMP/checksums.txt" \
+  cosign verify-blob "$TMP/checksums.txt" \
     --bundle "$TMP/checksums.txt.sigstore.json" \
     --certificate-identity-regexp "^https://github.com/$REPO/" \
     --certificate-oidc-issuer https://token.actions.githubusercontent.com
