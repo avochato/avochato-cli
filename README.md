@@ -14,9 +14,14 @@ brew install avochato/tap/avochato
 curl -fsSL https://raw.githubusercontent.com/avochato/avochato-cli/master/install.sh | sh
 ```
 
-The script downloads the latest release for your platform, verifies its checksum (and its cosign signature when `cosign` is installed), and installs `avochato` to `/usr/local/bin` (using `sudo` if needed). Set `INSTALL_DIR=~/.local/bin` to install somewhere else.
+**Windows (PowerShell)**
+```powershell
+irm https://raw.githubusercontent.com/avochato/avochato-cli/master/install.ps1 | iex
+```
 
-**Windows, or manual install:** download the archive for your platform from [Releases](https://github.com/avochato/avochato-cli/releases/latest), check it against `checksums.txt`, and put the `avochato` binary on your `PATH`.
+Both scripts download the latest release for your platform, verify its checksum (and its cosign signature when `cosign` is installed), and install `avochato`. On macOS and Linux it goes to `/usr/local/bin` (using `sudo` if needed); on Windows it goes to `%LOCALAPPDATA%\Programs\avochato`, which is added to your user `PATH`. Set `INSTALL_DIR` to install somewhere else, or `VERSION` (a release tag such as `v0.1.0`) to pin a version.
+
+**Manual install:** download the archive for your platform from [Releases](https://github.com/avochato/avochato-cli/releases/latest), check it against `checksums.txt`, and put the `avochato` binary on your `PATH`.
 
 **From source** (Go 1.27+)
 ```bash
