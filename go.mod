@@ -5,7 +5,7 @@ go 1.27.1
 require (
 	github.com/olekukonko/tablewriter v1.1.5
 	github.com/spf13/cobra v1.10.2
-	github.com/spf13/pflag v1.0.10
+	github.com/spf13/pflag v1.1.0
 	golang.org/x/term v0.46.0
 )
 
